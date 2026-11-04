@@ -4,7 +4,9 @@
   "description": "Proyecto desarrollado para la entrega final de la cursada **Generación T**.  \r Sistema web integral para la gestión de reservas de canchas (fútbol 5, pádel y tenis), precios variables, control de concurrencia, lista de espera automatizada y penalizaciones[cite: 1, 2, 3, 5, 8].",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "postinstall": "prisma generate"
   },
   "repository": {
     "type": "git",
