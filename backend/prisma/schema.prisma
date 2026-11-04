@@ -1,13 +1,75 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
-generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  SOCIO
+  NO_SOCIO
+  ADMIN
+}
+
+enum Deporte {
+  FUTBOL_5
+  PADEL
+  TENIS
+}
+
+enum EstadoReserva {
+  CONFIRMADA
+  CANCELADA
+  PENDIENTE_CONFIRMACION
+}
+
+model Usuario {
+  id              String        @id @default(uuid())
+  nombre          String
+  email           String        @unique
+  password        String
+  rol             Role          @default(NO_SOCIO)
+  faltasAcumuladas Int          @default(0)
+  bloqueadoHasta  DateTime?
+  reservas        Reserva[]
+  listaEspera     ListaEspera[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Cancha {
+  id          String      @id @default(uuid())
+  nombre      String
+  deporte     Deporte
+  activa      Boolean     @default(true)
+  reservas    Reserva[]
+  createdAt   DateTime    @default(now())
+}
+
+model Reserva {
+  id             String        @id @default(uuid())
+  usuarioId      String
+  canchaId       String
+  fechaInicio    DateTime
+  fechaFin       DateTime
+  precioTotal    Float
+  estado         EstadoReserva @default(CONFIRMADA)
+  usuario        Usuario       @relation(fields: [usuarioId], references: [id])
+  cancha         Cancha        @relation(fields: [canchaId], references: [id])
+  createdAt      DateTime      @default(now())
+}
+
+model ListaEspera {
+  id                 String    @id @default(uuid())
+  usuarioId          String
+  canchaId           String
+  fechaInicio        DateTime
+  fechaFin           DateTime
+  notificadoAt       DateTime?
+  expiraConfirmacion DateTime?
+  atendido           Boolean   @default(false)
+  usuario            Usuario   @relation(fields: [usuarioId], references: [id])
+  createdAt          DateTime  @default(now())
 }
