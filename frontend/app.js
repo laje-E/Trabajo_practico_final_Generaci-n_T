@@ -1,5 +1,5 @@
 // Cambiar esta URL por la de tu backend desplegado en Render cuando esté listo
-const API_URL = 'http://localhost:4000'; 
+const API_URL = 'https://trabajo-practico-final-generacion-t.onrender.com';
 
 // Verificar estado del backend
 document.getElementById('btnCheck').addEventListener('click', async () => {
