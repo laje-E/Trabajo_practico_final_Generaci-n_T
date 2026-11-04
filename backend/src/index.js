@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const reservaRoutes = require('./routes/reservaRoutes');
+const listaEsperaRoutes = require('./routes/listaEsperaRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -12,6 +13,7 @@ app.use(express.json());
 
 // Rutas de la API
 app.use('/api/reservas', reservaRoutes);
+app.use('/api/espera', listaEsperaRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({
