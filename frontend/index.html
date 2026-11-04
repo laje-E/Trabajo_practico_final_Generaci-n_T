@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Atlético Villa Norte - Sistema de Reservas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Club Atlético Villa Norte</h1>
+        <p>Sistema inteligente de gestión de turnos y canchas</p>
+    </header>
+
+    <main class="container">
+        <!-- Sección de Estado del Sistema -->
+        <section class="card">
+            <h2>Estado de la Conexión</h2>
+            <button id="btnCheck">Verificar Estado del Backend</button>
+            <p id="statusOutput" class="output-box">Esperando conexión...</p>
+        </section>
+
+        <!-- Sección de Reservas -->
+        <section class="card">
+            <h2>Crear Reserva</h2>
+            <form id="reservaForm">
+                <label for="usuarioId">ID de Usuario:</label>
+                <input type="text" id="usuarioId" required placeholder="Ej: uuid-usuario">
+
+                <label for="canchaId">ID de Cancha:</label>
+                <input type="text" id="canchaId" required placeholder="Ej: uuid-cancha">
+
+                <label for="fechaInicio">Fecha y Hora de Inicio:</label>
+                <input type="datetime-local" id="fechaInicio" required>
+
+                <button type="submit">Reservar Turno</button>
+            </form>
+            <div id="reservaOutput" class="output-box"></div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
