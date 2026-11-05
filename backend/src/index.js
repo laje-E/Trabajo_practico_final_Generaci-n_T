@@ -1,50 +1,57 @@
+require('dotenv/config');
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
-
-// Importación de enrutadores
-const reservaRoutes = require('./routes/reservaRoutes');
-const listaEsperaRoutes = require('./routes/listaEsperaRoutes');
-const penalizacionRoutes = require('./routes/penalizacionRoutes');
-const adminRoutes = require('./routes/adminRoutes');
+const prisma = require('./lib/prisma');
 
 const app = express();
-const PORT = process.env.PORT || 4000;
 
-// Middlewares globales
-app.use(cors());
+// Middlewares
+app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
 app.use(express.json());
 
-// ==========================================
-// REGISTRO DE RUTAS DE LA API
-// ==========================================
-app.use('/api/reservas', reservaRoutes);
-app.use('/api/espera', listaEsperaRoutes);
-app.use('/api/penalizaciones', penalizacionRoutes);
-app.use('/api/admin', adminRoutes);
+// Health check (útil para Render)
+app.get('/', (req, res) => {
+  res.json({ ok: true, servicio: 'Club Atlético Villa Norte - API' });
+});
 
-// Endpoint de verificación de estado (Health Check)
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
-    message: 'Backend del Club Atlético Villa Norte funcionando correctamente desde internet',
-    timestamp: new Date()
+app.get('/health', async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ ok: true, db: 'conectada' });
+  } catch (error) {
+    console.error('Error de base de datos:', error);
+    res.status(500).json({ ok: false, db: 'sin conexión' });
+  }
+});
+
+// ---- Acá van tus rutas ----
+// Ejemplo:
+// app.use('/api/canchas', require('./routes/canchas'));
+// app.use('/api/reservas', require('./routes/reservas'));
+
+// 404
+app.use((req, res) => {
+  res.status(404).json({ error: 'Ruta no encontrada' });
+});
+
+// Manejo global de errores
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Error interno del servidor' });
+});
+
+// Arranque
+const PORT = process.env.PORT || 3000;
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Servidor escuchando en el puerto ${PORT}`);
+});
+
+// Cierre ordenado
+async function shutdown() {
+  server.close(async () => {
+    await prisma.$disconnect();
+    process.exit(0);
   });
-});
-
-// Inicialización del servidor
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
-});
-
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import 'dotenv/config';
-
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
-});
-
-const prisma = new PrismaClient({ adapter });
-
-export default prisma;
+}
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
