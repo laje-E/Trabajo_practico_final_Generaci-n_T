@@ -54,10 +54,14 @@ model Reserva {
   fechaInicio    DateTime
   fechaFin       DateTime
   precioTotal    Float
+  penalizacion   Float         @default(0)   // NUEVO: cargo por cancelación tardía
+  canceladaEn    DateTime?                   // NUEVO: cuándo se canceló
   estado         EstadoReserva @default(CONFIRMADA)
   usuario        Usuario       @relation(fields: [usuarioId], references: [id])
   cancha         Cancha        @relation(fields: [canchaId], references: [id])
   createdAt      DateTime      @default(now())
+
+  @@index([canchaId, fechaInicio]) // NUEVO: acelera la búsqueda de superposiciones
 }
 
 model ListaEspera {
@@ -72,54 +76,3 @@ model ListaEspera {
   usuario            Usuario   @relation(fields: [usuarioId], references: [id])
   createdAt          DateTime  @default(now())
 }
-
-enum Deporte {
-  FUTBOL5
-  PADEL
-  TENIS
-}
-
-enum EstadoReserva {
-  ACTIVA
-  CANCELADA
-  COMPLETADA
-  AUSENTE
-}
-
-model Usuario {
-  id             Int       @id @default(autoincrement())
-  nombre         String
-  email          String    @unique
-  esSocio        Boolean   @default(false)
-  bloqueadoHasta DateTime?
-  creadoEn       DateTime  @default(now())
-  reservas       Reserva[]
-}
-
-model Cancha {
-  id       Int       @id @default(autoincrement())
-  nombre   String    @unique
-  deporte  Deporte
-  activa   Boolean   @default(true) // false = en mantenimiento
-  reservas Reserva[]
-}
-
-model Reserva {
-  id           Int           @id @default(autoincrement())
-  usuarioId    Int
-  canchaId     Int
-  fechaInicio  DateTime
-  fechaFin     DateTime
-  precio       Int
-  penalizacion Int           @default(0)
-  estado       EstadoReserva @default(ACTIVA)
-  creadaEn     DateTime      @default(now())
-  canceladaEn  DateTime?
-
-  usuario Usuario @relation(fields: [usuarioId], references: [id])
-  cancha  Cancha  @relation(fields: [canchaId], references: [id])
-
-  @@index([canchaId, fechaInicio])
-  @@index([usuarioId, estado])
-}
-
